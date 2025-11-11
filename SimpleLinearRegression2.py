@@ -1,0 +1,50 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+DF=pd.read_csv('height-weight.csv')
+print(DF.head())
+sns.scatterplot(x='Weight', y='Height', data=DF)
+plt.show()
+Regressor=LinearRegression()
+X=DF[['Weight']]
+y=DF['Height']
+print(X.shape, y.shape)
+X_train,X_test,y_train,y_test= train_test_split(X, y, test_size=0.2, random_state=42)
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_train=scaler.fit_transform(X_train)
+X_test=scaler.transform(X_test)
+plt.scatter(X_train, y_train)
+plt.xlabel('Weight (Standardized)')
+plt.ylabel('Height')    
+plt.show()
+print(Regressor)
+print(X_train.shape, y_train.shape)
+Regressor.fit(X_train, y_train)
+print(Regressor.coef_, Regressor.intercept_)
+height=Regressor.predict(scaler.transform([[75]]))
+print(f'Predicted Height for 75 kg: {height} cm')
+plt.scatter(X_train, y_train, color='blue', label='Training Data')
+plt.plot(X_train, Regressor.predict(X_train), color='red', label='Regression Line')
+plt.xlabel('Weight (Standardized)')
+plt.ylabel('Height')
+plt.show()
+plt.scatter(X_test, y_test, color='green', label='Test Data')
+plt.plot(X_test, Regressor.predict(X_test), color='red', label='Regression Line')
+plt.show()
+y_pred = Regressor.predict(X_test)
+print(y_pred)
+from sklearn.metrics import mean_squared_error,mean_absolute_error,rand_score, r2_score
+mean_squared_error_value = mean_squared_error(y_test, Regressor.predict(X_test))
+mean_absolute_error_value = mean_absolute_error(y_test, Regressor.predict(X_test))
+r2_score_value = r2_score(y_test, Regressor.predict(X_test))
+print(f'Mean Squared Error: {mean_squared_error_value}')
+print(f'Mean Absolute Error: {mean_absolute_error_value}')
+print(f'Root Mean Squared Error: {mean_squared_error_value ** 0.5}')
+print(f'R^2 Score: {r2_score_value}')
+plt.scatter(y_test, y_pred)
+plt.show()
+Adjusted_r2_score_value = 1 - (1 - r2_score_value) * (len(y_test) - 1) / (len(y_test) - X_test.shape[1] - 1)
+print(f'Adjusted R^2 Score: {Adjusted_r2_score_value}')

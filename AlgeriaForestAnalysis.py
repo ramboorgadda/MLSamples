@@ -1,0 +1,71 @@
+import numpy as np 
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+dataframe=pd.read_csv('Algerian_forest_fires_dataset_UPDATE.csv',header=1)
+print(dataframe.head())
+print(dataframe.shape)
+print(dataframe.info())
+print(dataframe[dataframe.isnull().any(axis=1)])
+dataframe.loc[:122,"Region"] = 0
+dataframe.loc[122:,"Region"] = 1
+df=dataframe
+print(df.head())
+print(df.info())
+#Convertdata type to Integer
+#Region missing values
+df['Region'] = df['Region'].fillna(0).astype(int)
+print(df.info())
+print(df.head())
+print(df.isnull().sum())
+df=df.dropna().reset_index(drop=True)
+print(df.shape)
+print(df.iloc[[122]])
+df=df.drop(122,axis=0)
+print(df.shape)
+print(df.columns)
+df.columns=df.columns.str.strip()
+print(df.columns)
+print(df.info())
+df[['day','month','year','Temperature','RH','Ws']]=df[['day','month','year','Temperature','RH','Ws']].apply(pd.to_numeric, errors='coerce')
+print(df[['day','month','year','Temperature','RH','Ws']].head())
+print(df[['day','month','year','Temperature','RH','Ws']].dtypes)
+print(df.info())
+print(df.describe())
+df[['Rain','FFMC','DMC','DC','ISI','BUI','FWI']]=df[['Rain','FFMC','DMC','DC','ISI','BUI','FWI']].apply(pd.to_numeric, errors='coerce')
+print(df[['Rain','FFMC','DMC','DC','ISI','BUI','FWI']].dtypes)
+print(df.head())
+df.drop(124,axis=0,inplace=True)
+df.to_csv('Algerian_forest_fires_cleaned_dataset.csv',index=False)
+df_copy=df.drop(['day','month','year'],axis=1)
+print(df_copy.head())
+print(df_copy['Classes'].value_counts())
+df_copy['Classes']=np.where(df_copy['Classes'].str.contains('not fire'), 0, 1)
+print(df_copy['Classes'].value_counts())
+sns.countplot(x='Classes', data=df_copy)
+plt.title('Distribution of Classes')
+plt.xlabel('Classes')
+plt.ylabel('Count')
+plt.show()
+print(df_copy.corr())
+sns.heatmap(df_copy.corr(), annot=True, cmap='coolwarm')
+plt.title('Correlation Heatmap')
+plt.show()
+## Monthly Fire Analysis
+dftemp=df.loc[df['Region']==1]
+plt.subplots(figsize=(13,6))
+sns.set_style('whitegrid')
+sns.countplot(x='month',hue='Classes',data=df)
+plt.ylabel('Number of Fires',weight='bold')
+plt.xlabel('Months',weight='bold')
+plt.title("Fire Analysis of Sidi- Bel Regions",weight='bold')
+plt.show()
+## Monthly Fire Analysis
+dftemp=df.loc[df['Region']==0]
+plt.subplots(figsize=(13,6))
+sns.set_style('whitegrid')
+sns.countplot(x='month',hue='Classes',data=df)
+plt.ylabel('Number of Fires',weight='bold')
+plt.xlabel('Months',weight='bold')
+plt.title("Fire Analysis of Brjaia Regions",weight='bold')
+plt.show()
